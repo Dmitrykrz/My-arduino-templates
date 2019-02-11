@@ -22,6 +22,7 @@ PubSubClient client(espClient);
 const char* MQTTclientname = "My_name_in_MQTT";
 const char* MQTTChannelToPublish = "channel";
 const char* MQTTChannelToSubsribe = "channel";
+const char* willMessage = "esp is dead";
 
 # define Sline Serial.println("-------------------------------------------------------------------")
 #define serialdebug
@@ -235,17 +236,19 @@ void connecttobestwifi()
 
 
 
+
 void connecttoMQTT()
 {
 	if (!client.connected())
 	{ // CHANDED FOM WHILE
 		Snl("Attempting MQTT connection...");
 
-		if (client.connect(MQTTclientname, mqtt_user, mqtt_password))
+		//boolean connect (clientID, username, password, willTopic, willQoS, willRetain, willMessage)
+		if (client.connect(MQTTclientname, mqtt_user, mqtt_password, MQTTChannelToPublish, 1, false, willMessage))
 		{
-			Snl("Connected to MQTT     :)");
+			Snl("iot cat Connected to MQTT");
 			client.subscribe(MQTTChannelToSubsribe);
-			client.publish(MQTTChannelToPublish, "Hello from ESP8266! I am connected to MQTT");
+			client.publish(MQTTChannelToPublish, "iot cat Connected to MQTT");
 
 
 		}
