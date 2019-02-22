@@ -15,12 +15,15 @@ IPAddress ip;
 PubSubClient client(espClient);
 
 
-const char* MQTTclientname = "My_name_in_MQTT";
-const char* MQTTChannelToPublish = "channel";
-const char* MQTTChannelToSubsribe = "channel";
+const char* mqtt_server = "";
+const char* mqtt_user = "";
+const char* mqtt_password = "";
+const int mqttport = 1883;
 const char* willMessage = "esp is dead";
 const char* HelloMessage = "esp online";
 const char* MQTTclientname="esp_name"
+const char* MQTTChannelToPublish = "channel";
+const char* MQTTChannelToSubsribe = "channel";
 
 
 # define Sline Serial.println("-------------------------------------------------------------------")
