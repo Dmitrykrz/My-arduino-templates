@@ -8,10 +8,6 @@
 #include "Korzhenevskiy_tick_tack_2.h"
 
 
-const char* mqtt_server = "...";
-const char* mqtt_user = "...";
-const char* mqtt_password = "...";
-const int mqttport = 1883;
 
 WiFiClient espClient;
 byte mac[6];
@@ -23,6 +19,9 @@ const char* MQTTclientname = "My_name_in_MQTT";
 const char* MQTTChannelToPublish = "channel";
 const char* MQTTChannelToSubsribe = "channel";
 const char* willMessage = "esp is dead";
+const char* HelloMessage = "esp online";
+const char* MQTTclientname="esp_name"
+
 
 # define Sline Serial.println("-------------------------------------------------------------------")
 #define serialdebug
