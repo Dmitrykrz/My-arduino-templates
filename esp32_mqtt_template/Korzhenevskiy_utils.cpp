@@ -1,6 +1,6 @@
 #include "Korzhenevskiy_utils.h"
 
-void draw_cat(void) {
+void draw_cat() {
 
   Serial.println("  ");
   Serial.println("  ");
@@ -27,8 +27,7 @@ void draw_cat(void) {
   Serial.println("  ");
 }
 
-void connecttobestwifi(wificredentials networks[], int numNetworks) {
-
+void connect_to_best_wifi(const WifiNetwork networks[], size_t count) {
 
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
@@ -37,67 +36,66 @@ void connecttobestwifi(wificredentials networks[], int numNetworks) {
     Serial.println("Scan start");
     int n = WiFi.scanNetworks();
     Serial.println("Scan done");
-    if (n == 0) {
+
+    int best_index = -1;
+    int best_rssi = -500;
+
+    if (n <= 0) {
         Serial.println("no networks found");
     } else {
         Serial.print(n);
         Serial.println(" networks found");
         for (int i = 0; i < n; ++i) {
-            for (int i3 = 0; i3 < numNetworks; i3++) {
-                if (WiFi.SSID(i) == networks[i3].ssid) {
-                    networks[i3].power = WiFi.RSSI(i);
+            for (size_t k = 0; k < count; k++) {
+                if (WiFi.SSID(i) == networks[k].ssid) {
+                    int rssi = WiFi.RSSI(i);
                     Serial.print("found ");
-                    Serial.print(networks[i3].ssid);
+                    Serial.print(networks[k].ssid);
                     Serial.print(" ");
-                    Serial.println(networks[i3].power);
+                    Serial.println(rssi);
+                    if (rssi > best_rssi) {
+                        best_rssi = rssi;
+                        best_index = k;
+                    }
                 }
             }
         }
     }
-    
-    int bestNetworkIndex = -1;
-    int maxPower = -500;
-    
-    for (int i = 0; i < numNetworks; i++) {
-        if (networks[i].power > maxPower) {
-            maxPower = networks[i].power;
-            bestNetworkIndex = i;
-        }
+    WiFi.scanDelete();
+
+    if (best_index == -1) {
+        Serial.println("No known network found");
+        return;
     }
-    
-    if (bestNetworkIndex != -1) {
-        Serial.print("Connecting to: ");
-        Serial.println(networks[bestNetworkIndex].ssid);
-        WiFi.begin(networks[bestNetworkIndex].ssid, networks[bestNetworkIndex].pass);
-        while (WiFi.status() != WL_CONNECTED) {
-            delay(500);
-            Serial.print(".");
-        }
-        Serial.println("");
-        Serial.println("WiFi connected");
-        Serial.println("IP address: ");
-        IPAddress ip = WiFi.localIP(); 
-        Serial.println(ip);
+
+    Serial.print("Connecting to: ");
+    Serial.println(networks[best_index].ssid);
+    WiFi.begin(networks[best_index].ssid, networks[best_index].pass);
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(100);
+        Serial.print(".");
     }
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
 }
 
+bool connect_to_mqtt(PubSubClient& client, const MqttSettings& settings) {
+  if (client.connected()) return true;
 
+  Serial.println("Attempting MQTT connection...");
 
-
-void connecttoMQTT() {
-  if (!client.connected()) {  
-    Serial.println("Attempting MQTT connection...");
-
-    //boolean connect (clientID, username, password, willTopic, willQoS, willRetain, willMessage)
-    if (client.connect(MQTTclientname, mqtt_user, mqtt_password, MQTTChannelToPublish, 1, false, willMessage)) {
-      Serial.println("MQTT connected");
-      client.subscribe(MQTTChannelToSubsribe);
-      client.publish(MQTTChannelToPublish, HelloMessage);
-
-
-    } else {
-      Serial.println("MQTT connect fail !!! ");
-      
-    }
+  // connect(clientID, username, password, willTopic, willQoS, willRetain, willMessage)
+  if (client.connect(settings.client_name, settings.user, settings.password,
+                     settings.topic_publish, 1, false, settings.will_message)) {
+    Serial.println("MQTT connected");
+    client.subscribe(settings.topic_subscribe);
+    client.publish(settings.topic_publish, settings.hello_message);
+    return true;
   }
+
+  Serial.print("MQTT connect failed, state ");
+  Serial.println(client.state());
+  return false;
 }
