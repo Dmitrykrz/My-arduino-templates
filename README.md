@@ -3,6 +3,8 @@
 Skeleton for new ESP32 projects (Arduino framework): WiFi, MQTT with JSON commands, non-blocking timers,
 settings saved in flash. Everything the sketch needs is in one folder, so `git clone` builds on any machine.
 
+**Read [TODO.md](TODO.md)**: planned changes (espMqttClient instead of PubSubClient, FastAccelStepper for motors).
+
 ## Start a new project
 
 1. Copy the `esp32_mqtt_template/` folder and rename it, e.g. `plant_watering/`.
